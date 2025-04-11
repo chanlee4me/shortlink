@@ -2,6 +2,7 @@ package com.chanlee.shortlink.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chanlee.shortlink.admin.common.constant.RedisCacheConstant;
@@ -11,6 +12,7 @@ import com.chanlee.shortlink.admin.common.enums.UserErrorCodeEnum;
 import com.chanlee.shortlink.admin.dao.entity.UserDO;
 import com.chanlee.shortlink.admin.dao.mapper.UserMapper;
 import com.chanlee.shortlink.admin.dto.req.UserRegisterReqDTO;
+import com.chanlee.shortlink.admin.dto.req.UserUpdateReqDTO;
 import com.chanlee.shortlink.admin.dto.resp.UserRespDTO;
 import com.chanlee.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -64,5 +66,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         } finally {
             lock.unlock();
         }
+    }
+
+    public void update(UserUpdateReqDTO requestParam) {
+        LambdaUpdateWrapper<UserDO> wrapper = Wrappers.lambdaUpdate(UserDO.class)
+                .eq(UserDO::getUsername, requestParam.getUsername());
+        baseMapper.update(BeanUtil.toBean(requestParam, UserDO.class), wrapper);
     }
 }

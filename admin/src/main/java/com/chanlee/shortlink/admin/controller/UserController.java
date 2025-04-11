@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.chanlee.shortlink.admin.common.convention.result.Result;
 import com.chanlee.shortlink.admin.common.convention.result.Results;
 import com.chanlee.shortlink.admin.dto.req.UserRegisterReqDTO;
+import com.chanlee.shortlink.admin.dto.req.UserUpdateReqDTO;
 import com.chanlee.shortlink.admin.dto.resp.UserActualRespDTO;
 import com.chanlee.shortlink.admin.dto.resp.UserRespDTO;
 import com.chanlee.shortlink.admin.service.UserService;
@@ -53,6 +54,17 @@ public class UserController {
     @PostMapping("/api/shortlink/v1/user")
     public Result<Void> register(@RequestBody UserRegisterReqDTO requestParam){
         userService.register(requestParam);
+        return Results.success();
+    }
+
+    /**
+     * 修改用户个人信息
+     * @param requestParam
+     * @return
+     */
+    @PutMapping("/api/shortlink/v1/user")
+    public Result<Void> update(@RequestBody UserUpdateReqDTO requestParam){
+        userService.update(requestParam);
         return Results.success();
     }
 }
