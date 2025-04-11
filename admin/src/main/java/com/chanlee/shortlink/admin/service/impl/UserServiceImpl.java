@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chanlee.shortlink.admin.common.constant.RedisCacheConstant;
 import com.chanlee.shortlink.admin.common.convention.exception.ClientException;
 import com.chanlee.shortlink.admin.common.convention.exception.ServiceException;
 import com.chanlee.shortlink.admin.common.enums.UserErrorCodeEnum;
@@ -14,6 +15,8 @@ import com.chanlee.shortlink.admin.dto.resp.UserRespDTO;
 import com.chanlee.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBloomFilter;
+import org.redisson.api.RedissonClient;
+import org.redisson.api.RLock;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +27,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements UserService {
     private final RBloomFilter<String> userRegisterCachePenetrationBloomFilter;
+    private final RedissonClient redissonClient;
 
     public UserRespDTO getUserByUsername(String username) {
         LambdaQueryWrapper<UserDO> queryWrapper = Wrappers.lambdaQuery(UserDO.class)
@@ -41,15 +45,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     }
 
     public void register(UserRegisterReqDTO requestParam) {
-        if(hasUsername(requestParam.getUsername())){
+        if (hasUsername(requestParam.getUsername())) {
             throw new ClientException(UserErrorCodeEnum.USER_NAME_EXIST);
         }
         UserDO userDO = BeanUtil.copyProperties(requestParam, UserDO.class);
-        int insert = baseMapper.insert(userDO);
-        if(insert < 1){
-            throw new ClientException(UserErrorCodeEnum.USER_SAVE_ERROR);
+        //获取分布式锁，防止大量请求重复创建同一个用户名
+        RLock lock = redissonClient.getLock(RedisCacheConstant.LOCK_USER_REGISTER_KEY + requestParam.getUsername());
+        try {
+            if (lock.tryLock()) {
+                int insert = baseMapper.insert(userDO);
+                if (insert < 1) {
+                    throw new ClientException(UserErrorCodeEnum.USER_SAVE_ERROR);
+                }
+                userRegisterCachePenetrationBloomFilter.add(requestParam.getUsername());
+                return;
+            }
+            throw new ClientException(UserErrorCodeEnum.USER_NAME_EXIST);
+        } finally {
+            lock.unlock();
         }
-        userRegisterCachePenetrationBloomFilter.add(requestParam.getUsername());
     }
-
 }
