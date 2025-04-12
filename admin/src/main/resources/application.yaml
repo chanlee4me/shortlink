@@ -11,3 +11,11 @@ spring:
       host: 127.0.0.1
       port: 6379
       password: 123456
+shortlink:
+  jwt:
+    # 设置jwt签名加密时使用的秘钥
+    secret-key: shortlink
+    # 设置jwt过期时间（单位秒）
+    ttl: 1800
+    # 设置前端传递过来的令牌名称
+    token-name: token
