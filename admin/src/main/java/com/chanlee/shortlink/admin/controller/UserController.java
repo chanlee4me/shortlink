@@ -3,12 +3,15 @@ package com.chanlee.shortlink.admin.controller;
 import cn.hutool.core.bean.BeanUtil;
 import com.chanlee.shortlink.admin.common.convention.result.Result;
 import com.chanlee.shortlink.admin.common.convention.result.Results;
+import com.chanlee.shortlink.admin.dto.req.UserLoginReqDTO;
 import com.chanlee.shortlink.admin.dto.req.UserRegisterReqDTO;
 import com.chanlee.shortlink.admin.dto.req.UserUpdateReqDTO;
 import com.chanlee.shortlink.admin.dto.resp.UserActualRespDTO;
+import com.chanlee.shortlink.admin.dto.resp.UserLoginRespDTO;
 import com.chanlee.shortlink.admin.dto.resp.UserRespDTO;
 import com.chanlee.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -66,5 +69,25 @@ public class UserController {
     public Result<Void> update(@RequestBody UserUpdateReqDTO requestParam){
         userService.update(requestParam);
         return Results.success();
+    }
+
+    /**
+     * 用户登录
+     * @param requestParam 请求参数
+     * @return token
+     */
+    @PostMapping("/api/shortlink/v1/user/login")
+    public Result<UserLoginRespDTO> login(@RequestBody UserLoginReqDTO requestParam){
+        return Results.success(userService.login(requestParam));
+    }
+
+    /**
+     * 用户注销登录
+     * @param token jwttoken
+     * @return
+     */
+    @PostMapping("/api/shortlink/v1/user/logout")
+    public Result<Void> logout(String token){
+         return Results.success(userService.logout(token));
     }
 }
