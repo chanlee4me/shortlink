@@ -2,8 +2,10 @@ package com.chanlee.shortlink.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chanlee.shortlink.admin.dao.entity.UserDO;
+import com.chanlee.shortlink.admin.dto.req.UserLoginReqDTO;
 import com.chanlee.shortlink.admin.dto.req.UserRegisterReqDTO;
 import com.chanlee.shortlink.admin.dto.req.UserUpdateReqDTO;
+import com.chanlee.shortlink.admin.dto.resp.UserLoginRespDTO;
 import com.chanlee.shortlink.admin.dto.resp.UserRespDTO;
 
 /**
@@ -35,4 +37,18 @@ public interface UserService extends IService<UserDO> {
      * @param requestParam 修改用户请求参数
      */
     void update(UserUpdateReqDTO requestParam);
+
+    /**
+     * 用户登录
+     * @param requestParam
+     * @return 返回token
+     */
+    UserLoginRespDTO login(UserLoginReqDTO requestParam);
+
+    /**
+     * 用户注销登录
+     * @param token jwttoken
+     * @return
+     */
+    Void logout(String token);
 }

@@ -11,16 +11,23 @@ import com.chanlee.shortlink.admin.common.convention.exception.ServiceException;
 import com.chanlee.shortlink.admin.common.enums.UserErrorCodeEnum;
 import com.chanlee.shortlink.admin.dao.entity.UserDO;
 import com.chanlee.shortlink.admin.dao.mapper.UserMapper;
+import com.chanlee.shortlink.admin.dto.req.UserLoginReqDTO;
 import com.chanlee.shortlink.admin.dto.req.UserRegisterReqDTO;
 import com.chanlee.shortlink.admin.dto.req.UserUpdateReqDTO;
+import com.chanlee.shortlink.admin.dto.resp.UserLoginRespDTO;
 import com.chanlee.shortlink.admin.dto.resp.UserRespDTO;
 import com.chanlee.shortlink.admin.service.UserService;
+import com.chanlee.shortlink.admin.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBloomFilter;
-import org.redisson.api.RedissonClient;
 import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
+
 
 /**
  * 用户接口实现层
@@ -30,6 +37,8 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements UserService {
     private final RBloomFilter<String> userRegisterCachePenetrationBloomFilter;
     private final RedissonClient redissonClient;
+    private final JwtUtil jwtUtil;
+    private final StringRedisTemplate stringRedisTemplate;
 
     public UserRespDTO getUserByUsername(String username) {
         LambdaQueryWrapper<UserDO> queryWrapper = Wrappers.lambdaQuery(UserDO.class)
@@ -72,5 +81,31 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         LambdaUpdateWrapper<UserDO> wrapper = Wrappers.lambdaUpdate(UserDO.class)
                 .eq(UserDO::getUsername, requestParam.getUsername());
         baseMapper.update(BeanUtil.toBean(requestParam, UserDO.class), wrapper);
+    }
+
+    public UserLoginRespDTO login(UserLoginReqDTO requestParam) {
+        if(!hasUsername(requestParam.getUsername())){
+            throw new ClientException(UserErrorCodeEnum.USER_NOT_EXIST);
+        }
+        LambdaQueryWrapper<UserDO> queryWrapper = Wrappers.lambdaQuery(UserDO.class)
+                .eq(UserDO::getUsername, requestParam.getUsername())
+                .eq(UserDO::getPassword, requestParam.getPassword());
+        UserDO userDO = baseMapper.selectOne(queryWrapper);
+        if(userDO == null)
+            throw new ClientException(UserErrorCodeEnum.USER_NOT_EXIST);
+        // 登录成功后，生成jwt令牌
+        String token = jwtUtil.createJwtToken(requestParam.getUsername());
+        UserLoginRespDTO respDTO = new UserLoginRespDTO();
+        respDTO.setToken(token);
+        return respDTO;
+    }
+
+    public Void logout(String token) {
+        if(stringRedisTemplate.hasKey(RedisCacheConstant.USER_LOG_OUT_KEY + token)){
+            throw new ClientException(UserErrorCodeEnum.USER_ALREADY_LOG_OUT);
+        }else{
+            stringRedisTemplate.opsForValue().set(RedisCacheConstant.USER_LOG_OUT_KEY + token, "0", 30, TimeUnit.MINUTES);
+            return null;
+        }
     }
 }
