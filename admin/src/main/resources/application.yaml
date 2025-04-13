@@ -16,6 +16,6 @@ shortlink:
     # 设置jwt签名加密时使用的秘钥
     secret-key: shortlink
     # 设置jwt过期时间（单位秒）
-    ttl: 1800
+    ttl: 18000000
     # 设置前端传递过来的令牌名称
     token-name: token
