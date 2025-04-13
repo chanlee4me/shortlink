@@ -38,7 +38,34 @@ public class JwtUtil {
 
         // 设置payload
         Map<String, Object> payload = new HashMap<>();
-        payload.put(JwtClaimsConstant.USERNAME, username);
+        payload.put(JwtClaimsConstant.USER_NAME, username);
+        // 构建JWT
+        return JWT.create()
+                .addPayloads(payload)
+                .setExpiresAt(expiration)
+                .setSigner(signer)
+                .sign();
+    }
+
+    /**
+     * 创建 JWT token
+     *
+     * @param username 用户名
+     * @return token 字符串
+     */
+    public String createJwtToken(String username, String userId, String realName) {
+
+        // 获取签名器
+        JWTSigner signer = JWTSignerUtil.hs256(jwtConfig.getSecretKey().getBytes());
+
+        // 设置过期时间
+        Date expiration = DateUtil.offsetSecond(new Date(), (int) jwtConfig.getTtl());
+
+        // 设置payload
+        Map<String, Object> payload = new HashMap<>();
+        payload.put(JwtClaimsConstant.USER_NAME, username);
+        payload.put(JwtClaimsConstant.REAL_NAME, realName);
+        payload.put(JwtClaimsConstant.USER_ID, userId);
 
         // 构建JWT
         return JWT.create()
@@ -81,9 +108,28 @@ public class JwtUtil {
      */
     public String getUsernameFromToken(String token) {
         JWT jwt = JWT.of(token);
-        return jwt.getPayload(JwtClaimsConstant.USERNAME).toString();
+        return jwt.getPayload(JwtClaimsConstant.USER_NAME).toString();
     }
-
+    /**
+     * 从 Token 中获取用户ID
+     *
+     * @param token token字符串
+     * @return 用户ID
+     */
+    public String getUserIdFromToken(String token) {
+        JWT jwt = JWT.of(token);
+        return jwt.getPayload(JwtClaimsConstant.USER_ID).toString();
+    }
+    /**
+     * 从 Token 中获取用户真实姓名
+     *
+     * @param token token字符串
+     * @return 用户姓名
+     */
+    public String getUserRealNameFromToken(String token) {
+        JWT jwt = JWT.of(token);
+        return jwt.getPayload(JwtClaimsConstant.REAL_NAME).toString();
+    }
     /**
      * 刷新 Token (重新生成)
      * @param token 旧token
