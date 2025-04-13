@@ -19,8 +19,10 @@ public enum UserErrorCodeEnum implements IErrorCode {
 
     USER_NOT_EXIST("B000205", "用户已登录"),
 
-    USER_ALREADY_LOG_OUT("B000206", "用户已注销");
+    USER_ALREADY_LOG_OUT("B000206", "用户已注销"),
 
+    INVALID_TOKEN("B000207", "token非法"),
+    TOKEN_IS_NULL("B000208", "token为空");
 
     private final String code;
 
