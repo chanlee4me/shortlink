@@ -84,6 +84,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     }
 
     public UserLoginRespDTO login(UserLoginReqDTO requestParam) {
+        //TODO 如果用户已经登录，那么不用再分配新的令牌，而且刷新现有的令牌
         if(!hasUsername(requestParam.getUsername())){
             throw new ClientException(UserErrorCodeEnum.USER_NOT_EXIST);
         }
@@ -94,7 +95,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         if(userDO == null)
             throw new ClientException(UserErrorCodeEnum.USER_NOT_EXIST);
         // 登录成功后，生成jwt令牌
-        String token = jwtUtil.createJwtToken(requestParam.getUsername());
+        String token = jwtUtil.createJwtToken(userDO.getUsername(), userDO.getId().toString(), userDO.getRealName());
         UserLoginRespDTO respDTO = new UserLoginRespDTO();
         respDTO.setToken(token);
         return respDTO;
