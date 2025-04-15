@@ -20,7 +20,7 @@ public class UtilController {
     /**
      * 查询当前用户上文中的信息
      */
-    @GetMapping("/api/shortlink/v1/user/usercontext")
+    @GetMapping("/api/shortlink/admin/v1/user/usercontext")
     public Result<JwtRespDTO> getUserContext(@RequestHeader("token") String token){
         return Results.success(jwtService.getUserContext(token));
     }

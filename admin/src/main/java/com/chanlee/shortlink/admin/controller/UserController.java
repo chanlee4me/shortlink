@@ -11,7 +11,6 @@ import com.chanlee.shortlink.admin.dto.resp.UserLoginRespDTO;
 import com.chanlee.shortlink.admin.dto.resp.UserRespDTO;
 import com.chanlee.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -28,7 +27,7 @@ public class UserController {
      * @param username
      * @return
      */
-    @GetMapping("/api/shortlink/v1/user/{username}")
+    @GetMapping("/api/shortlink/admin/v1/user/{username}")
     public Result<UserRespDTO> getUserByUsername(@PathVariable String username){
         return Results.success(userService.getUserByUsername(username));
     }
@@ -37,14 +36,14 @@ public class UserController {
      * @param username
      * @return
      */
-    @GetMapping("/api/shortlink/v1/actual/user/{username}")
+    @GetMapping("/api/shortlink/admin/v1/actual/user/{username}")
     public Result<UserActualRespDTO> getActualUserByUsername(@PathVariable String username){
         return Results.success(BeanUtil.copyProperties(userService.getUserByUsername(username), UserActualRespDTO.class));
     }
     /**
      * 查询用户名是否已经被注册
      */
-    @GetMapping("/api/shortlink/v1/user/has-username")
+    @GetMapping("/api/shortlink/admin/v1/user/has-username")
     public Result<Boolean> hasUsername(@RequestParam("username") String username){
         return Results.success(userService.hasUsername(username));
     }
@@ -54,7 +53,7 @@ public class UserController {
      * @param requestParam
      * @return
      */
-    @PostMapping("/api/shortlink/v1/user")
+    @PostMapping("/api/shortlink/admin/v1/user")
     public Result<Void> register(@RequestBody UserRegisterReqDTO requestParam){
         userService.register(requestParam);
         return Results.success();
@@ -65,7 +64,7 @@ public class UserController {
      * @param requestParam
      * @return
      */
-    @PutMapping("/api/shortlink/v1/user")
+    @PutMapping("/api/shortlink/admin/v1/user")
     public Result<Void> update(@RequestBody UserUpdateReqDTO requestParam){
         userService.update(requestParam);
         return Results.success();
@@ -76,7 +75,7 @@ public class UserController {
      * @param requestParam 请求参数
      * @return token
      */
-    @PostMapping("/api/shortlink/v1/user/login")
+    @PostMapping("/api/shortlink/admin/v1/user/login")
     public Result<UserLoginRespDTO> login(@RequestBody UserLoginReqDTO requestParam){
         return Results.success(userService.login(requestParam));
     }
@@ -86,7 +85,7 @@ public class UserController {
      * @param token jwttoken
      * @return
      */
-    @PostMapping("/api/shortlink/v1/user/logout")
+    @PostMapping("/api/shortlink/admin/v1/user/logout")
     public Result<Void> logout(String token){
          return Results.success(userService.logout(token));
     }
