@@ -1,8 +1,7 @@
 package com.chanlee.shortlink.project.dao.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.chanlee.shortlink.project.common.database.BaseDO;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -12,55 +11,65 @@ import java.time.LocalDateTime;
  */
 @Data
 @TableName("t_link")
-public class ShortLinkDO {
-    @TableId(type = IdType.AUTO)
+public class ShortLinkDO extends BaseDO {
+
     /**
      * ID
      */
     private Long id;
 
     /**
-     * 用户名
+     * 域名
      */
-    private String username;
+    private String domain;
 
     /**
-     * 密码
+     * 短链接
      */
-    private String password;
+    private String shortUri;
 
     /**
-     * 真实姓名
+     * 完整短链接
      */
-    private String realName;
+    private String fullShortUrl;
 
     /**
-     * 手机号
+     * 原始链接
      */
-    private String phone;
+    private String originUrl;
 
     /**
-     * 邮箱
+     * 点击量
      */
-    private String mail;
+    private Integer clickNum;
 
     /**
-     * 注销时间戳
+     * 分组标识
      */
-    private Long deletionTime;
+    private String gid;
 
     /**
-     * 创建时间
+     * 启用标识 0：未启用 1：已启用
      */
-    private LocalDateTime createTime;
+    private Integer enableStatus;
 
     /**
-     * 修改时间
+     * 创建类型 0：控制台 1：接口
      */
-    private LocalDateTime updateTime;
+    private Integer createdType;
 
     /**
-     * 删除标识 0：未删除 1：已删除
+     * 有效期类型 0：永久有效 1：用户自定义
      */
-    private Integer delFlag;
+    private Integer validDateType;
+
+    /**
+     * 有效期
+     */
+    private LocalDateTime validDate;
+
+    /**
+     * 描述
+     */
+    private String describe;
 }
