@@ -1,2 +1,27 @@
 server:
   port: 8001
+spring:
+  datasource:
+    username: root
+    password: 88888888
+    url: jdbc:mysql://127.0.0.1:3306/shortlink?characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&serverTimezone=GMT%2B8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-test-query: select 1
+      connection-timeout: 20000
+      idle-timeout: 300000
+      maximum-pool-size: 5
+      minimum-idle: 5
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: 123456
+shortlink:
+  jwt:
+    # 设置jwt签名加密时使用的秘钥
+    secret-key: shortlink
+    # 设置jwt过期时间（单位秒）
+    ttl: 18000000
+    # 设置前端传递过来的令牌名称
+    token-name: token
